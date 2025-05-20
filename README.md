@@ -1,4 +1,4 @@
-# React + TypeScript + Vite + scrum 4 + 5 + 6 + 8 + v3.0.0
+# React + TypeScript + Vite + scrum 4 + 5 + 6 + 8 + v4.0.0
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
