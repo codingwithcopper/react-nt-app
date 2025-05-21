@@ -1,0 +1,68 @@
+name: Build & Deploy to Pages
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  # ต้องเขียน deployments ให้ Action สร้างและอัปเดต deployment ได้
+  deployments: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
+
+      # 1) สร้าง GitHub Deployment
+      - name: Create GitHub deployment
+        id: create_deploy
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ github.token }}
+          environment: production
+          description: "Deploy Pages for release ${{ github.ref_name }}"
+
+      # 2) อัปเดตสถานะเป็น success ถ้า deploy ผ่าน
+      - name: Mark deployment success
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ github.token }}
+          deployment-id: ${{ steps.create_deploy.outputs.deployment_id }}
+          environment: production
+          state: success
+
+      # 3) อัปเดตสถานะเป็น failure ถ้า deploy ล้มเหลว
+      - name: Mark deployment failure
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ github.token }}
+          deployment-id: ${{ steps.create_deploy.outputs.deployment_id }}
+          environment: production
+          state: failure

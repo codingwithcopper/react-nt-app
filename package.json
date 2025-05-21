@@ -1,7 +1,11 @@
 {
   "name": "@codingwithcopper/react-nt-app",
   "private": false,
+<<<<<<< HEAD
   "version": "4.0.0",
+=======
+  "version": "2.0.0",
+>>>>>>> 94413a1 (deploy 2.0.0)
   "type": "module",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
